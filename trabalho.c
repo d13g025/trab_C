@@ -5,10 +5,10 @@
 
 //srtok()
 /*Elaborar um controle de estoque contendo no menu (swtic case):
--LanÁamento de entradas em estoque (struct com descriÁ„o_Produto, quantidade, valor_Unit)
--Fazer a baixa/saÌda de produtos;
--imprimir relatÛrio com posiÁ„o de estoque (saldo inicia + entradas - saidal = saldo);
--apÛs selecionado cada opÁ„o, tem um comando para voltar para o menu
+-Lan√ßamento de entradas em estoque (struct com descri√ß√£o_Produto, quantidade, valor_Unit)
+-Fazer a baixa/sa√≠da de produtos;
+-imprimir relat√≥rio com posi√ß√£o de estoque (saldo inicia + entradas - saidal = saldo);
+-ap√≥s selecionado cada op√ß√£o, tem um comando para voltar para o menu
 *****talvez conectar a tabela com excel como banco de dados*****
 */
 int codigo_geral = 0; //variavel de escopo geral;
@@ -29,15 +29,6 @@ struct st_produto{ //campo de cadastro de produtos
     float valor_Unit;
 }produto[50];
 
-/*struct st_produto_saida{ //
-    int codigo;
-    int qnt_saida;
-}saidas[50];
-
-struct st_produto_entrada{ //
-    int codigo;
-    int qnt_entrada;
-}entradas[50];*/
 /*-----------------------------------------------------------------------------*/
 int cadastro (){ //1 - Cadastro de Produto
 
@@ -48,7 +39,7 @@ int cadastro (){ //1 - Cadastro de Produto
     codigo_geral += 1;
     produto[codigo_geral].codigo = codigo_geral;
     fflush(stdin);
-    printf("CÛdigo: %d", produto[codigo_geral].codigo);
+    printf("C√≥digo: %d", produto[codigo_geral].codigo);
     pular_linha ();
     printf("PRODUTO: ");
     fgets(produto[codigo_geral].descricao, 30, stdin);
@@ -65,8 +56,9 @@ int cadastro (){ //1 - Cadastro de Produto
     pular_linha();
     fflush(stdin);
 
-    printf("Deseja cadastrar outro produto: [S/N]: ");
+    printf("Deseja CADASTRAR outro produto: [S/N]: ");
     scanf("%c", &opcao);
+    pular_linha;
     }while(opcao != 'N' && opcao != 'n');
     pular_linha();
 }
@@ -75,37 +67,47 @@ int cadastro (){ //1 - Cadastro de Produto
 
 void lista_produtos(){
 
-    printf("Listar Produtos\n");
+    printf("Lista de Produtos\n");
     for(int i = 1; i <= codigo_geral; i++){
-        printf("%d  -  %s ", produto[i].codigo, produto[i].descricao);
+        printf("\t%d  -  %s", produto[i].codigo, produto[i].descricao);
     }
+    pular_linha();
 }
 
 /*-----------------------------------------------------------------------------*/
 
-int vendas(){ //funcao para fazer a saÌda/venda
+int vendas(){ //2 - Realizar Vendas
 
 
-    int opcao1, quantidade;
+    int opcao1, saida;
     char opcao;
 
     lista_produtos();
 
     do{
     printf("******FATURAMENTO********\n");
-    printf("CÛdigo:");
+    printf("C√≥digo:");
     scanf("%d", &opcao1);
 
          if((produto[opcao1].entradas - produto[opcao1].saidas) > 0){
         printf("Produto: %s", produto[opcao1].descricao);
 
-        printf("Quantidade:");
-        scanf("%d", &quantidade);
 
-        produto[opcao1].saidas = quantidade + produto[opcao1].saidas; //atualizando o valor das saÌdas
+        printf("Quantidade:");
+        scanf("%d", &saida);
+
+        do{
+        if ((produto[opcao1].entradas - produto[opcao1].saidas)< saida){
+            printf("SALDO INSUFICIENTE!");
+            printf("Quantidade:");
+            scanf("%d", &saida);
+        }
+        }while((produto[opcao1].entradas - produto[opcao1].saidas)< saida);
+
+        produto[opcao1].saidas = saida + produto[opcao1].saidas; //atualizando o valor das sa√≠das
 
         printf("Valor unitario: %.2f\n", produto[opcao1].valor_Unit);
-        printf("TOTAL: R$ %.2f\n", quantidade * produto[opcao1].valor_Unit);
+        printf("TOTAL: R$ %.2f\n", saida * produto[opcao1].valor_Unit);
 
         pular_linha();
         }else{
@@ -114,14 +116,40 @@ int vendas(){ //funcao para fazer a saÌda/venda
     pular_linha();
     fflush(stdin);
 
-      printf("Deseja cadastrar outro produto: [S/N]: ");
+      printf("Deseja FATURAR outro produto: [S/N]: ");
     scanf("%c", &opcao);
 
-    }while(opcao != 'N');
+    }while(opcao != 'N' && opcao1 != 'n');
     pular_linha();
 }
 
-int consulta(){ //consulta o saldo do estoque
+int lancarEntradas (){//3 - Lan√ßar Entradas
+
+    lista_produtos();
+    int entrada, opcao1;
+    char opcao;
+
+    do{
+
+        printf("**********LAN√áAMENTO DE ENTRADAS************\n");
+        printf("C√≥digo: ");
+        scanf("%d", &opcao1);
+
+        printf("PRODUTO: ");
+        printf("Produto: %s", produto[opcao1].descricao);
+
+        printf("QUANTIDADE: ");
+        scanf("%d", &entrada);
+
+        produto[codigo_geral].entradas = opcao1 + produto[codigo_geral].entradas;
+
+        printf("Deseja LAN√áAR outro produto: [S/N]: ");
+        scanf("%c", &opcao);
+    }while(opcao != 'N' && opcao != 'n');
+    pular_linha();
+}
+
+int consulta(){ //4 - Consultar Estoque
 
 
    int opcao1;
@@ -132,7 +160,7 @@ int consulta(){ //consulta o saldo do estoque
 
     do{
         printf("**********CONSULTA ESTOQUE************\n");
-        printf("CÛdigo: ");
+        printf("C√≥digo: ");
         scanf("%d", &opcao1);
 
         if((produto[opcao1].entradas - produto[opcao1].saidas) > 0){
@@ -140,12 +168,12 @@ int consulta(){ //consulta o saldo do estoque
         fflush(stdin);
         printf("ESTOQUE\n");
         printf("\tEntradas: %d\n", produto[opcao1].entradas);
-        printf("\tSaÌdas: %d\n", produto[opcao1].saidas);
+        printf("\tSa√≠das: %d\n", produto[opcao1].saidas);
         printf("\tSaldo Final: %d\n", produto[opcao1].entradas - produto[opcao1].saidas);
         printf("TOTAL: R$ %.2f", (produto[opcao1].entradas - produto[opcao1].saidas)*produto[opcao1].valor_Unit);
         pular_linha();
         fflush(stdin);
-        printf("Deseja cadastrar outro produto: [S/N]: ");
+        printf("Deseja CONSULTAR outro produto: [S/N]: ");
         scanf("%c", &opcao);
         }else{
             printf("Sem saldo de produto");}
@@ -155,30 +183,49 @@ int consulta(){ //consulta o saldo do estoque
 /*-----------------------------------------------------------------------------*/
 
 void tela (){ //layot menu inicial
+
+
     printf(" _____________________________________________\n");
     printf("|=============================================|\n");
     printf("|===================MENU======================|\n");
     printf("| 1 - Cadastro de Produto.....................|\n");
     printf("| 2 - Realizar Vendas.........................|\n");
-    printf("| 3 - LanÁar Entradas.........................|\n");
+    printf("| 3 - Lan√ßar Entradas.........................|\n");
     printf("| 4 - Consultar Estoque.......................|\n");
-    printf("| 5 - Calcular valor de estoque...............|\n");
-    printf("| 6 - Sair....................................|\n");
+    printf("| 5 - Sair....................................|\n");
     printf("|_____________________________________________|\n");
+    printf("QUAL OPERA√á√ÉO DESEJA REALIZAR:");
 }
 
 /*-----------------------------------------------------------------------------*/
-int main(){  //ainda sÛ para teste se a funÁ„o roda
+int main(){  //ainda s√≥ para teste se a fun√ß√£o roda
     setlocale(LC_ALL,"Portuguese");  //biblioteca para corrigir os acentos.
+    int escolha;
 
+    do{
+        tela();
+        scanf("%d", &escolha);
+        pular_linha();
 
-    tela();
-    cadastro();
-    lista_produtos();
-    limparTela();
-    vendas();
-    limparTela();
-    consulta();
+    switch (escolha){
 
-
+    case 1:
+        cadastro();
+        break;
+    case 2:
+        vendas();
+        break;
+    case 3:
+        lancarEntradas();
+        break;
+    case 4:
+        consulta();
+        break;
+    case 5:
+        printf("At√© breve");
+        break;
+    default:
+        printf("OP√á√ÉO INV√ÅLIDA");
+        break;}
+        }while( escolha != 5);
 return 0;}
